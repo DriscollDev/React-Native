@@ -155,6 +155,67 @@ export const globalStyles = StyleSheet.create({
     width: '100%',
     aspectRatio: 1,
   },
+
+  // Detail screen styles
+  detailContainer: {
+    flex: 1,
+    backgroundColor: Colors.background,
+    padding: Spacing.lg,
+  },
+
+  detailImageContainer: {
+    width: '100%',
+    aspectRatio: 1,
+    backgroundColor: Colors.white,
+    borderRadius: 12,
+    shadowColor: Colors.black,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 5,
+    marginBottom: Spacing.lg,
+  },
+
+  detailImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 12,
+  },
+
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  modalImageContainer: {
+    width: '90%',
+    height: '70%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  modalImage: {
+    width: '100%',
+    height: '100%',
+  },
+
+  closeButton: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
 
 export default globalStyles;

@@ -1,8 +1,13 @@
 // components/ImageGrid.tsx
 import React from 'react';
-import { View, FlatList, Image } from 'react-native';
+import { View, FlatList, Image, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { globalStyles } from '../styles/globalStyles';
 import { ImageData } from '../data/imageData';
+import { StackParamList } from '../App';
+
+type ImageGridNavigationProp = StackNavigationProp<StackParamList, 'Home'>;
 
 interface ImageGridProps {
   images: ImageData[];
@@ -13,14 +18,23 @@ const ImageGrid: React.FC<ImageGridProps> = ({
   images, 
   numColumns = 2
 }) => {
+  const navigation = useNavigation<ImageGridNavigationProp>();
+
+  const handleImagePress = (image: ImageData) => {
+    navigation.navigate('ImageDetails', { image });
+  };
+
   const renderImageItem = ({ item }: { item: ImageData }) => (
-    <View style={globalStyles.gridItem}>
+    <TouchableOpacity 
+      style={globalStyles.gridItem}
+      onPress={() => handleImagePress(item)}
+    >
       <Image 
         source={{ uri: item.url }} 
         style={globalStyles.gridImage}
         resizeMode="cover"
       />
-    </View>
+    </TouchableOpacity>
   );
 
   return (
