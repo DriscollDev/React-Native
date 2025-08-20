@@ -1,1 +1,1 @@
-
+export { ForecastComponent } from './ForecastComponent';
