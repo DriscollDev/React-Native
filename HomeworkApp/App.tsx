@@ -3,7 +3,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { StatusBar } from 'expo-status-bar';
-import { PhotoGalleryNavigator, CustomDrawerContent, WeatherScreen } from './components';
+import { PhotoGalleryNavigator, CustomDrawerContent, WeatherNavigator } from './components';
 
 const Drawer = createDrawerNavigator();
 
@@ -35,7 +35,7 @@ const App = () => {
         />
         <Drawer.Screen
           name="Weather"
-          component={WeatherScreen}
+          component={WeatherNavigator}
           options={{
             drawerLabel: 'Weather App',
             swipeEnabled: true,
