@@ -1,15 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Text, View, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { CameraView, Camera, BarcodeScanningResult } from 'expo-camera';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { ScannerStackParamList } from '../navigation/ScannerStackNavigator';
 
+// Type definition for navigation prop
+type QRScannerNavigationProp = StackNavigationProp<ScannerStackParamList, 'QRScanner'>;
+
+// QR Scanner screen component - handles camera permissions and QR code scanning
 export default function QRScannerScreen() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<QRScannerNavigationProp>();
+  
+  // State variables for camera and scanning functionality
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [scanned, setScanned] = useState(false);
   const [qrDetected, setQrDetected] = useState(false);
   const [detectedUrl, setDetectedUrl] = useState<string>('');
 
+  // Request camera permissions on component mount
   useEffect(() => {
     const getCameraPermissions = async () => {
       const { status } = await Camera.requestCameraPermissionsAsync();
@@ -19,6 +28,14 @@ export default function QRScannerScreen() {
     getCameraPermissions();
   }, []);
 
+  // Reset scanner state when screen comes back into focus
+  useFocusEffect(
+    useCallback(() => {
+      resetScanner();
+    }, [])
+  );
+
+  // Handle successful QR code detection
   const handleBarCodeScanned = ({ type, data }: BarcodeScanningResult) => {
     if (!qrDetected) {
       setQrDetected(true);
@@ -26,39 +43,38 @@ export default function QRScannerScreen() {
     }
   };
 
+  // Process confirmed QR scan and navigate to appropriate screen
   const handleConfirmScan = () => {
     setScanned(true);
     setQrDetected(false);
     
-    // Display the URL in an alert
-    Alert.alert(
-      'QR Code Scanned Successfully',
-      `Scanned URL:\n\n${detectedUrl}`,
-      [
-        {
-          text: 'Copy URL',
-          onPress: () => {
-            // Note: Doesnt work yet
-            console.log('URL copied:', detectedUrl);
-            resetScanner();
+    // Check if the scanned URL contains product information
+    if (detectedUrl.includes('/products/')) {
+      // Navigate to ProductDetail screen with the scanned URL
+      navigation.navigate('ProductDetail', { url: detectedUrl });
+    } else {
+      // Show error for non-product QR codes and reset scanner
+      Alert.alert(
+        'Not a Product QR Code',
+        'This QR code does not contain a product URL. Please scan a product QR code.',
+        [
+          {
+            text: 'OK',
+            onPress: () => resetScanner(),
           },
-        },
-        {
-          text: 'OK',
-          onPress: () => resetScanner(),
-          style: 'cancel',
-        },
-      ],
-      { cancelable: false }
-    );
+        ]
+      );
+    }
   };
 
+  // Reset all scanner states to initial values
   const resetScanner = () => {
     setScanned(false);
     setQrDetected(false);
     setDetectedUrl('');
   };
 
+  // Handle camera permission states
   if (hasPermission === null) {
     return <Text>Requesting for camera permission</Text>;
   }
@@ -68,57 +84,64 @@ export default function QRScannerScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>QR Code Scanner</Text>
-      <Text style={styles.subtitle}>Scan a QR code to get the URL</Text>
-      
-      <View style={styles.cameraContainer}>
-        <CameraView
-          style={styles.camera}
-          facing="back"
-          onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
-          barcodeScannerSettings={{
-            barcodeTypes: ['qr'], // Only scan QR codes
-          }}
-        />
-        
-        {/* Scanning Overlay */}
-        <View style={styles.overlay}>
-          <View style={styles.scanArea}>
-            <View style={[styles.corner, styles.topLeft]} />
-            <View style={[styles.corner, styles.topRight]} />
-            <View style={[styles.corner, styles.bottomLeft]} />
-            <View style={[styles.corner, styles.bottomRight]} />
-          </View>
-        </View>
-        
-        {/* QR Detected - Show Confirm Button */}
-        {qrDetected && !scanned && (
-          <View style={styles.confirmContainer}>
-            <Text style={styles.detectedText}>QR Code Detected!</Text>
-            <Text style={styles.urlPreview} numberOfLines={2}>
-              {detectedUrl}
-            </Text>
-            <View style={styles.buttonRow}>
-              <TouchableOpacity
-                style={styles.confirmButton}
-                onPress={handleConfirmScan}
-              >
-                <Text style={styles.confirmButtonText}>Scan</Text>
-              </TouchableOpacity>
-            </View>
-            <TouchableOpacity
-              style={styles.cancelButton}
-              onPress={resetScanner}
-            >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>QR Scanner</Text>
       </View>
       
-      <Text style={styles.instructions}>
-        Point your camera at a QR code, then tap "Scan" to confirm and view the URL
-      </Text>
+      <View style={styles.content}>
+        <Text style={styles.title}>Scan Product QR Code</Text>
+        <Text style={styles.subtitle}>Point your camera at a product QR code</Text>
+        
+        <View style={styles.cameraContainer}>
+          <CameraView
+            style={styles.camera}
+            facing="back"
+            onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+            barcodeScannerSettings={{
+              barcodeTypes: ['qr'], // Only scan QR codes
+            }}
+          />
+          
+          {/* Scanning overlay with corner indicators */}
+          <View style={styles.overlay}>
+            <View style={styles.scanArea}>
+              <View style={[styles.corner, styles.topLeft]} />
+              <View style={[styles.corner, styles.topRight]} />
+              <View style={[styles.corner, styles.bottomLeft]} />
+              <View style={[styles.corner, styles.bottomRight]} />
+            </View>
+          </View>
+          
+          {/* QR Code confirmation dialog - shown when QR is detected */}
+          {qrDetected && !scanned && (
+            <View style={styles.confirmContainer}>
+              <Text style={styles.detectedText}>QR Code Detected!</Text>
+              <Text style={styles.urlPreview} numberOfLines={2}>
+                {detectedUrl}
+              </Text>
+              <View style={styles.buttonRow}>
+                <TouchableOpacity
+                  style={styles.confirmButton}
+                  onPress={handleConfirmScan}
+                >
+                  <Text style={styles.confirmButtonText}>Scan</Text>
+                </TouchableOpacity>
+              </View>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={resetScanner}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+        
+        {/* Bottom instructions text */}
+        <Text style={styles.instructions}>
+          Point your camera at a product QR code, then tap "Scan" to view product details
+        </Text>
+      </View>
     </View>
   );
 }
@@ -127,6 +150,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  header: {
+    backgroundColor: '#2196F3',
+    paddingTop: 50,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  content: {
+    flex: 1,
     padding: 20,
   },
   title: {
