@@ -1,7 +1,6 @@
 import React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import HomeScreen from '../screens/HomeScreen';
-import QRScannerStackNavigator from './QRScannerStackNavigator';
 import { QRScannerScreen } from '../screens';
 
 const Drawer = createDrawerNavigator();
@@ -10,7 +9,7 @@ export default function DrawerNavigator() {
   return (
     <Drawer.Navigator
       screenOptions={{
-        drawerPosition: 'right', // Right-side drawer as requested
+        drawerPosition: 'right',
         headerStyle: {
           backgroundColor: '#2196F3',
         },
