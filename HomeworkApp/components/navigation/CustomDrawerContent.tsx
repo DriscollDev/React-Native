@@ -41,6 +41,19 @@ export const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props
             state.routeNames[state.index] === 'Weather' && styles.activeItem
           ]}
         />
+
+        <DrawerItem
+          label="Shake to Charge"
+          onPress={() => navigateToApp('ShakeToCharge')}
+          labelStyle={[
+            styles.drawerItemLabel,
+            state.routeNames[state.index] === 'ShakeToCharge' && styles.activeLabel
+          ]}
+          style={[
+            styles.drawerItem,
+            state.routeNames[state.index] === 'ShakeToCharge' && styles.activeItem
+          ]}
+        />
       </View>
     </DrawerContentScrollView>
   );
