@@ -41,6 +41,14 @@ const App = () => {
             swipeEnabled: true,
           }}
         />
+        <Drawer.Screen
+          name="ShakeToCharge"
+          component={require('./components/shake-to-charge/ShakeToChargeScreen').default}
+          options={{
+            drawerLabel: 'Shake to Charge',
+            swipeEnabled: true,
+          }}
+        />
       </Drawer.Navigator>
     </NavigationContainer>
   );
