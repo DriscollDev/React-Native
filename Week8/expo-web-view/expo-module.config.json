@@ -1,0 +1,9 @@
+{
+  "platforms": ["apple", "android", "web"],
+  "apple": {
+    "modules": ["ExpoWebViewModule"]
+  },
+  "android": {
+    "modules": ["expo.modules.webview.ExpoWebViewModule"]
+  }
+}
